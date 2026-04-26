@@ -1,0 +1,89 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  k8s-demo-spring-boot
+spec:
+  selector:
+    matchLabels:
+      app: k8s-demo-spring-boot
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app:  k8s-demo-spring-boot
+    spec:
+      containers:
+      - name:  k8s-demo-spring-boot
+        image:  k8s-demo-spring-boot:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-configmap
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: SPRING_DATASOURCE_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: SPRING_DATASOURCE_PASSWORD
+        - name: SPRING_PROFILES_ACTIVE
+          value: dev
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 70
+          periodSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 70
+          periodSeconds: 10
+
+
+# Configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-configmap
+data:
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/k8s?createDatabaseIfNotExist=true
+
+# Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: k8s-secret
+  namespace: default
+type: Opaque
+stringData:
+  SPRING_DATASOURCE_USERNAME: appuser
+  SPRING_DATASOURCE_PASSWORD: apppass 
+
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: k8s-demo-spring-boot
+  ports:
+    - port: 80
+      targetPort: 8080
+
+

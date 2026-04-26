@@ -1,0 +1,37 @@
+
+services:
+  mysql-server:
+    container_name: mysql-server
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - '3306:3306'
+    volumes:
+      - MYSQL_DATA:/var/lib/mysql
+    networks:
+      - k8s-network
+
+  k8s-demo-spring-boot:
+    container_name: k8s-demo-spring-boot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: k8s-demo-spring-boot:latest
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mysql-server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-server:3306/k8s?createDatabaseIfNotExist=true
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - k8s-network
+
+networks:
+  k8s-network:
+    driver: bridge
+
+volumes:
+  MYSQL_DATA:
