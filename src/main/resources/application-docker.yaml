@@ -5,8 +5,8 @@ spring:
     name: k8s-demo-spring-boot
   datasource:
     url: ${SPRING_DATASOURCE_URL}
-    username: root
-    password: root
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

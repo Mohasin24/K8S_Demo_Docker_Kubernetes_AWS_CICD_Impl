@@ -6,6 +6,9 @@ services:
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=k8s
+      - MYSQL_USER=appuser
+      - MYSQL_PASSWORD=appuser
     ports:
       - '3306:3306'
     volumes:
@@ -25,6 +28,8 @@ services:
       - mysql-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-server:3306/k8s?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=appuser
+      - SPRING_DATASOURCE_PASSWORD=appuser
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - k8s-network
