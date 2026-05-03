@@ -31,7 +31,7 @@ public class Controller{
 
      @GetMapping("/")
      public ResponseEntity<String> testEndpoint(){
-          return ResponseEntity.ok("Service is up!");
+          return ResponseEntity.ok("Service is up and running!");
      }
 
 }
